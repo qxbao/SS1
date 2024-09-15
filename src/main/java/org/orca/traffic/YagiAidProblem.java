@@ -2,20 +2,17 @@ package org.orca.traffic;
 
 import org.moeaframework.core.Problem;
 import org.moeaframework.core.Solution;
-import org.moeaframework.core.variable.EncodingUtils;
-import org.moeaframework.core.variable.Permutation;
 import org.moeaframework.core.variable.RealVariable;
 
-public class TrafficProblem implements Problem {
-    protected final double budget = 500;
-    protected final int ncity = 6;
-    protected final String[] city = new String[]{
-            "Hanoi",  "Tuyen Quang", "Yen Bai", "Quang Ninh", "Hai  Phong", "Bac Ninh"
+public class YagiAidProblem implements Problem {
+    protected final double fund = 500;
+    protected static final int ncity = 6;
+    protected static final String[] city = new String[]{
+            "Hanoi",  "Tuyen Quang", "Yen Bai", "Quang Ninh", "Hai Phong", "Bac Ninh"
     };
     protected final int[] damage = new int[]{40, 180, 120, 84, 250, 170};
     protected final int[] citybudget = new int[]{200, 50, 80, 150, 150, 120};
-    public TrafficProblem(){super();}
-
+    public YagiAidProblem(){super();}
     @Override
     public String getName() {
         return this.getClass().getSimpleName();
@@ -28,7 +25,7 @@ public class TrafficProblem implements Problem {
 
     @Override
     public int getNumberOfObjectives() {
-        return 1;
+        return 2;
     }
 
     @Override
@@ -43,15 +40,18 @@ public class TrafficProblem implements Problem {
             cleanSolution[i] = ((RealVariable) solution.getVariable(i)).getValue();
         }
         double satisfaction = 0;
+        double dissatisfaction = 0;
         double spent = 0;
-        double alpha;
         for (int i = 0; i < cleanSolution.length; i++) {
             spent += cleanSolution[i];
-            alpha = (double) damage[i] /  citybudget[i];
-            satisfaction += (damage[i] * (cleanSolution[i] / damage[i]) + Math.pow(damage[i], 1.2)) * alpha;
+            satisfaction += (cleanSolution[i] + damage[i]);
+            if (citybudget[i] * 0.3 + cleanSolution[i] < damage[i]) {
+                dissatisfaction += damage[i] - (citybudget[i] * 0.3 + cleanSolution[i]);
+            }
         }
-        double overbudget = spent > budget ? Math.abs(budget - spent) : 0;
+        double overbudget = spent > fund ? Math.abs(fund - spent) : 0;
         solution.setObjective(0, -satisfaction);
+        solution.setObjective(1, dissatisfaction);
         solution.setConstraint(0, overbudget);
     }
 

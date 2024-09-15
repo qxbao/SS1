@@ -1,4 +1,4 @@
-package knapsack;
+package org.orca.knapsack;
 
 import org.moeaframework.core.Problem;
 import org.moeaframework.core.Solution;
@@ -7,8 +7,8 @@ import org.moeaframework.core.variable.EncodingUtils;
 public class KnapsackProblem implements Problem {
     protected final int nitems = 10;
     protected final int maxWeight = 50;
-    protected final String[] names = new String[]{"Sleeping bag", "Rope", "Knife", "Torch", "Bottle", "Noodles Box", "Sugar", "Water Tank", "Swimming Suit", "Umbrella"};
-    protected final int[] weights = new int[]{15, 3, 2, 5, 9, 20, 4, 15, 3, 8};
+    protected static final String[] names = new String[]{"Sleeping bag", "Rope", "Knife", "Torch", "Bottle", "Noodles", "Sugar", "Tent", "Swimming Suit", "Umbrella"};
+    protected static final int[] weights = new int[]{15, 3, 2, 5, 9, 20, 4, 15, 3, 8};
     protected final int[] points = new int[]{15, 7, 10, 5, 8, 17, 7, 19, 1, 10};
 
     public KnapsackProblem() {
@@ -27,7 +27,7 @@ public class KnapsackProblem implements Problem {
 
     @Override
     public int getNumberOfObjectives() {
-        return 2;
+        return 1;
     }
 
     @Override
@@ -54,7 +54,6 @@ public class KnapsackProblem implements Problem {
             totalWeight = totalWeight - maxWeight;
 
         solution.setObjective(0, -totalPoint);
-        solution.setObjective(1, totalWeight);
         solution.setConstraint(0, totalWeight);
     }
 
