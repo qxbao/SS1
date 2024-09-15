@@ -67,7 +67,7 @@ public class StableMatchingProblem implements Problem {
         // For each pair, compare with other pairs to see if any of them would cheat
         for (int i = 0; i < n; i++) {
             int man1 = i, woman1 = women[i];
-            for (int j = 0; j < n; j++) {
+            for (int j = i; j < n; j++) {
                 if (j == i) continue;
                 int man2 = j, woman2 = women[j];
                 if (isUnfaithful(man1, woman1, man2, woman2)) {
