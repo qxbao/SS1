@@ -9,16 +9,18 @@ import org.moeaframework.core.variable.Permutation;
 
 public class Main {
     public static void main(String[] args) {
-        int n = 3;
+        int n = 4;
         int[][] menPref = new int[][]{
-                {2, 1, 0},
-                {0, 1, 2},
-                {2, 1, 0},
+                {3, 1, 2, 0},
+                {1, 0, 2, 3},
+                {0, 1, 2, 3},
+                {0, 1, 2, 3}
         };
         int [][] womenPref = new int[][]{
-                {2, 1, 0},
-                {1, 0, 2},
-                {2, 0, 1}
+                {0, 1, 2, 3},
+                {0, 1, 2, 3},
+                {0, 1, 2, 3},
+                {0, 1, 2, 3}
         };
         Problem problem = new StableMatchingProblem(n, menPref, womenPref);
         Algorithm algorithm = AlgorithmFactory.getInstance().getAlgorithm("NSGAII", problem);
