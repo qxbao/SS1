@@ -13,5 +13,14 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/org.moeaframework/moeaframework -->
+        <dependency>
+            <groupId>org.moeaframework</groupId>
+            <artifactId>moeaframework</artifactId>
+            <version>4.4</version>
+            <scope>provided</scope>
+        </dependency>
+
+    </dependencies>
 </project>

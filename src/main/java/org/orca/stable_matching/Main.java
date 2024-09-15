@@ -33,6 +33,7 @@ public class Main {
                 System.out.printf("(Man %s - Woman %s)%n", j, ((Permutation) sol.getVariable(0)).get(j));
             }
             System.out.printf("Unstability: %s", sol.getObjective(0));
+            i++;
         }
     }
 }
