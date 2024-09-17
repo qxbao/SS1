@@ -61,7 +61,7 @@ public class StableMatchingProblem implements Problem {
         // Set objective (to minimize instability)
         solution.setObjective(0, instability);
     }
-    public int getSatisfactory(int m, int w) {
+    public int getSatisfaction(int m, int w) {
         return (n - rankOf(w, menPreference[m])) + (n - rankOf(m, womenPreference[w]));
     }
     private int calculateInstability(int[] women) {

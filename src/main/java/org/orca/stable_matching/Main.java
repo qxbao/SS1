@@ -34,9 +34,6 @@ public class Main {
                 System.out.printf("(Man %s - Woman %s)%n", j, women[j]);
             }
             int s = 0;
-            for (int j = 0; j < n; j++) {
-                s += problem.getSatisfactory(j, women[j]);
-            }
             System.out.printf("Instability: %s", sol.getObjective(0));
             i++;
         }

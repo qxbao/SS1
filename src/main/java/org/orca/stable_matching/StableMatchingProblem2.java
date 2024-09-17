@@ -40,7 +40,7 @@ public class StableMatchingProblem2 implements Problem {
 
     @Override
     public int getNumberOfObjectives() {
-        // 1 objective is to maximize the satisfactory.
+        // 1 objective is to maximize the satisfaction.
         return 1;
     }
 
@@ -52,15 +52,16 @@ public class StableMatchingProblem2 implements Problem {
     @Override
     public void evaluate(Solution solution) {
         // Format the solution
-        int[] men = ((Permutation) solution.getVariable(0)).toArray();
+        int[] womenOrder = ((Permutation) solution.getVariable(0)).toArray();
         // Get the partner of all men using Gale Shapley algorithm
-        int[] menPartner = GaleShapley(men);
-        // Calculate the satisfactory
-        int satisfactory = 0;
+        int[] menPartner = GaleShapley(womenOrder);
+        // Calculate the overall satisfaction
+        int satisfaction = 0;
         for (int i = 0; i < n; i++) {
-            satisfactory += getSatisfactory(i, menPartner[i]);
+            satisfaction += getSatisfaction(i, menPartner[i]);
         }
-        solution.setObjective(0, -satisfactory);
+        // Try to minimize it
+        solution.setObjective(0, -satisfaction);
     }
     public int[] GaleShapley(int[] women) {
         int[] menPartner = new int[n];
@@ -80,7 +81,7 @@ public class StableMatchingProblem2 implements Problem {
                 }
             }
             // Let her take a look at all men, following her preference
-            for (int i = 0; i < n && womanAvailable[woman] == false; i++) {
+            for (int i = 0; i < n && !womanAvailable[woman]; i++) {
                 int man = womenPreference[woman][i];
                 // If the man she saw is single, they will date.
                 if (menPartner[man] == -1) {
@@ -112,8 +113,8 @@ public class StableMatchingProblem2 implements Problem {
         }
         throw new RuntimeException("Invalid preference");
     }
-    // Get the satisfactory point for the couple of woman w and man m
-    public int getSatisfactory(int m, int w) {
+    // Get the satisfaction point of the couple of woman w and man m
+    public int getSatisfaction(int m, int w) {
         return (n - rankOf(w, menPreference[m])) + (n - rankOf(m, womenPreference[w]));
     }
     // Just a linear-search
