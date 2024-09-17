@@ -62,7 +62,7 @@ public class StableMatchingProblem2 implements Problem {
         }
         solution.setObjective(0, -satisfactory);
     }
-    public int[] GaleShapley(int[] men) {
+    public int[] GaleShapley(int[] women) {
         int[] menPartner = new int[n];
         // All women and men are free at first
         Arrays.fill(menPartner, -1);
@@ -72,8 +72,9 @@ public class StableMatchingProblem2 implements Problem {
         // While there are free woman
         while (nFreeWoman > 0) {
             // Pick the first available woman
-            int woman;
-            for (woman = 0; woman < n; woman++) {
+            int woman = 99999;
+            for (int i = 0; i < n; i++) {
+                woman = women[i];
                 if (!womanAvailable[woman]) {
                     break;
                 }
@@ -105,7 +106,11 @@ public class StableMatchingProblem2 implements Problem {
 
     // Find out if man m likes woman w more than w1, or not
     public boolean mLikeWmore(int m, int w, int w1) {
-        return rankOf(w, menPreference[m]) < rankOf(w1, menPreference[m]);
+        for (int i = 0; i < n; i++) {
+            if (menPreference[m][i] == w) return true;
+            if (menPreference[m][i] == w1) return false;
+        }
+        throw new RuntimeException("Invalid preference");
     }
     // Get the satisfactory point for the couple of woman w and man m
     public int getSatisfactory(int m, int w) {

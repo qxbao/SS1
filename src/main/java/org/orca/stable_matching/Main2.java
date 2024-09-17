@@ -28,10 +28,10 @@ public class Main2 {
         int i = 1;
         for (Solution sol : solution) {
             System.out.println("Solution " + i + ":");
-            int[] men = ((Permutation) sol.getVariable(0)).toArray();
-            int[] menPartner = problem.GaleShapley(men);
+            int[] womenOrder = ((Permutation) sol.getVariable(0)).toArray();
+            int[] menPartner = problem.GaleShapley(womenOrder);
             for (int j = 0; j < n; j++) {
-                System.out.printf("(Man %s - Woman %s)%n", men[j], menPartner[j]);
+                System.out.printf("(Man %s - Woman %s)%n", j, menPartner[j]);
             }
             System.out.printf("Satisfactory: %s", -sol.getObjective(0));
             i++;
