@@ -11,20 +11,20 @@ public class Main {
     public static void main(String[] args) {
         int n = 4;
         int[][] menPref = new int[][]{
-                {3, 1, 2, 0},
                 {1, 0, 2, 3},
-                {0, 1, 2, 3},
-                {0, 1, 2, 3}
+                {3, 0, 1, 2},
+                {0, 2, 1, 3},
+                {1, 2, 0, 3}
         };
         int [][] womenPref = new int[][]{
-                {0, 1, 2, 3},
-                {0, 1, 2, 3},
-                {0, 1, 2, 3},
-                {0, 1, 2, 3}
+                {0, 2, 1, 3},
+                {2, 3, 0, 1},
+                {3, 1, 2, 0},
+                {2, 1, 0, 3}
         };
         StableMatchingProblem problem = new StableMatchingProblem(n, menPref, womenPref);
         Algorithm algorithm = AlgorithmFactory.getInstance().getAlgorithm("NSGAII", problem);
-        algorithm.run(100);
+        algorithm.run(1);
         NondominatedPopulation solution = algorithm.getResult();
         int i = 1;
         for (Solution sol : solution) {
@@ -33,7 +33,6 @@ public class Main {
             for (int j = 0; j < n; j++) {
                 System.out.printf("(Man %s - Woman %s)%n", j, women[j]);
             }
-            int s = 0;
             System.out.printf("Instability: %s", sol.getObjective(0));
             i++;
         }

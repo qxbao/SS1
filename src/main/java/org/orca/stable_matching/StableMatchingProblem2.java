@@ -2,7 +2,9 @@ package org.orca.stable_matching;
 
 import org.moeaframework.core.Problem;
 import org.moeaframework.core.Solution;
+import org.moeaframework.core.Variable;
 import org.moeaframework.core.variable.Permutation;
+import org.moeaframework.core.variable.Subset;
 
 import java.util.Arrays;
 
@@ -52,77 +54,107 @@ public class StableMatchingProblem2 implements Problem {
     @Override
     public void evaluate(Solution solution) {
         // Format the solution
-        int[] womenOrder = ((Permutation) solution.getVariable(0)).toArray();
-        // Get the partner of all men using Gale Shapley algorithm
-        int[] menPartner = GaleShapley(womenOrder);
-        // Calculate the overall satisfaction
-        int satisfaction = 0;
+        int[] order = ((Permutation) solution.getVariable(0)).toArray();
+        int[] order2 = new int[n];
         for (int i = 0; i < n; i++) {
-            satisfaction += getSatisfaction(i, menPartner[i]);
+            order2[i] = order[i] + n;
         }
+        // Get the partner of all men using Gale Shapley algorithm
+        int[] partners = GaleShapley(order);
+        int[] partners2 = GaleShapley(order2);
+        // Calculate the overall satisfaction
+        int s1 = getTotalSatisfaction(order, partners);
+        int s2 = getTotalSatisfaction(order2, partners2);
         // Try to minimize it
-        solution.setObjective(0, -satisfaction);
+        solution.setObjective(0, -(Math.max(s1, s2)));
     }
-    public int[] GaleShapley(int[] women) {
-        int[] menPartner = new int[n];
+    public int[] GaleShapley(int[] input) {
+        int[] partners = new int[n];
+        boolean isWoman = input[0] >= n;
+        int[][] apref, bpref;
+        apref = isWoman ? womenPreference : menPreference;
+        bpref = isWoman ? menPreference : womenPreference;
+        int subtract = isWoman ? n : 0;
+        int subtract1 = isWoman ? 0 : n;
         // All women and men are free at first
-        Arrays.fill(menPartner, -1);
-        boolean[] womanAvailable = new boolean[n];
+        Arrays.fill(partners, -1);
+        boolean[] dated = new boolean[n];
         // Quantity of free man
-        int nFreeWoman = n;
+        int freeleft = n;
         // While there are free woman
-        while (nFreeWoman > 0) {
+        while (freeleft > 0) {
             // Pick the first available woman
-            int woman = 99999;
+            int a = input[0];
             for (int i = 0; i < n; i++) {
-                woman = women[i];
-                if (!womanAvailable[woman]) {
+                a = input[i];
+                if (!dated[a - subtract]) {
                     break;
                 }
             }
             // Let her take a look at all men, following her preference
-            for (int i = 0; i < n && !womanAvailable[woman]; i++) {
-                int man = womenPreference[woman][i];
+            for (int i = 0; i < n && !dated[a - subtract]; i++) {
+                int b = apref[a - subtract][i];
                 // If the man she saw is single, they will date.
-                if (menPartner[man] == -1) {
-                    menPartner[man] = woman;
-                    womanAvailable[woman] = true;
-                    nFreeWoman--;
+                if (partners[b - subtract1] == -1) {
+                    partners[b - subtract1] = a;
+                    dated[a - subtract] = true;
+                    freeleft--;
                 }
                 // If the man she saw has a partner
                 else {
                     // She will find her
-                    int woman1 = menPartner[man];
+                    int enemy = partners[b - subtract1];
                     // And try to steal her boyfriend
-                    if (mLikeWmore(man, woman, woman1)) {
-                        menPartner[man] = woman;
-                        womanAvailable[woman] = true;
-                        womanAvailable[woman1] = false;
+                    if (xLikeYMore(b, a, enemy)) {
+                        partners[b - subtract1] = a;
+                        dated[a - subtract] = true;
+                        dated[enemy - subtract] = false;
                     }
                 }
             }
         }
-        return menPartner;
+        return partners;
     }
 
     // Find out if man m likes woman w more than w1, or not
-    public boolean mLikeWmore(int m, int w, int w1) {
-        for (int i = 0; i < n; i++) {
-            if (menPreference[m][i] == w) return true;
-            if (menPreference[m][i] == w1) return false;
+    public boolean xLikeYMore(int a, int b, int b1) {
+        if (a < n) {
+            for (int i = 0; i < n; i++) {
+                if (menPreference[a][i] == b) return true;
+                if (menPreference[a][i] == b1) return false;
+            }
+        }
+        else {
+            for (int i = 0; i < n; i++) {
+                if (womenPreference[a - n][i] == b) return true;
+                if (womenPreference[a - n][i] == b1) return false;
+            }
         }
         throw new RuntimeException("Invalid preference");
     }
     // Get the satisfaction point of the couple of woman w and man m
-    public int getSatisfaction(int m, int w) {
-        return (n - rankOf(w, menPreference[m])) + (n - rankOf(m, womenPreference[w]));
+    public int getSatisfaction(int a, int b) {
+        return (n - rankOf(a, b)) + (n - rankOf(b, a));
+    }
+    public int getTotalSatisfaction(int[] order, int[] partners) {
+        int satisfaction = 0;
+        for (int i = 0; i < n; i++) {
+            satisfaction += getSatisfaction(order[0] < n ? i + n : i, partners[i]);
+        }
+        return satisfaction;
     }
     // Just a linear-search
-    private int rankOf(int entity, int[] pref) {
-        for (int i = 0; i < n; i++) {
-            if (pref[i] == entity) return i;
+    private int rankOf(int a, int b) {
+        if (a < n) {
+            for (int i = 0; i < n; i++) {
+                if (menPreference[a][i] == b) return i;
+            }
+        } else {
+            for (int i = 0; i < n; i++) {
+                if (womenPreference[a - n][i] == b) return i;
+            }
         }
-        throw new RuntimeException("Inputs (pref) are not valid.");
+        throw new RuntimeException("Inputs (pref) are not valid." + a + b);
     }
     @Override
     public Solution newSolution() {
