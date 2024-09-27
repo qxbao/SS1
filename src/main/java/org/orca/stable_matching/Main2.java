@@ -3,15 +3,26 @@ package org.orca.stable_matching;
 import org.moeaframework.algorithm.NSGAII;
 import org.moeaframework.core.Algorithm;
 import org.moeaframework.core.NondominatedPopulation;
-import org.moeaframework.core.Solution;
-import org.moeaframework.core.variable.Permutation;
-
-import java.util.Arrays;
 
 public class Main2 {
     public static void main(String[] args) {
-        int n = 15;
-        int[][] womenPref = new int[][]{
+        int n = 30;
+        int[][] pref = new int[][]{
+            {17, 20, 29, 28, 21, 19, 26, 24, 16, 22, 27, 15, 18, 25, 23},
+            {28, 19, 17, 26, 16, 25, 20, 23, 22, 18, 24, 15, 27, 21, 29},
+            {24, 17, 26, 23, 18, 20, 19, 16, 27, 21, 22, 25, 29, 15, 28},
+            {17, 18, 20, 24, 15, 16, 28, 27, 25, 21, 22, 23, 26, 19, 29},
+            {29, 27, 26, 23, 20, 16, 28, 22, 19, 21, 25, 18, 17, 15, 24},
+            {21, 16, 29, 28, 23, 15, 17, 22, 18, 20, 25, 24, 19, 27, 26},
+            {19, 17, 15, 26, 27, 24, 16, 25, 29, 23, 22, 21, 20, 28, 18},
+            {25, 27, 15, 18, 24, 29, 20, 28, 26, 22, 16, 21, 23, 17, 19},
+            {20, 23, 22, 26, 18, 29, 24, 27, 21, 16, 15, 17, 28, 25, 19},
+            {25, 17, 21, 23, 16, 26, 24, 22, 20, 28, 29, 18, 15, 27, 19},
+            {27, 28, 20, 17, 18, 16, 26, 24, 25, 23, 29, 21, 19, 22, 15},
+            {24, 25, 23, 15, 19, 21, 29, 18, 28, 16, 26, 22, 20, 27, 17},
+            {24, 22, 27, 16, 17, 28, 20, 23, 19, 15, 21, 26, 25, 29, 18},
+            {21, 29, 26, 19, 24, 17, 27, 15, 23, 25, 28, 22, 18, 20, 16},
+            {22, 29, 19, 20, 27, 24, 16, 28, 26, 17, 18, 15, 23, 25, 21},
             {11, 5, 1, 2, 6, 10, 0, 13, 4, 7, 12, 9, 8, 14, 3},
             {14, 3, 2, 0, 10, 12, 5, 8, 13, 1, 11, 9, 4, 7, 6},
             {12, 13, 9, 5, 11, 8, 7, 14, 2, 3, 0, 10, 6, 1, 4},
@@ -28,40 +39,10 @@ public class Main2 {
             {7, 9, 8, 5, 14, 2, 0, 13, 3, 6, 1, 12, 4, 10, 11},
             {1, 6, 0, 14, 2, 8, 9, 10, 7, 11, 5, 3, 13, 12, 4},
         };
-        int [][] menPref = new int[][]{
-            {17, 20, 29, 28, 21, 19, 26, 24, 16, 22, 27, 15, 18, 25, 23},
-            {28, 19, 17, 26, 16, 25, 20, 23, 22, 18, 24, 15, 27, 21, 29},
-            {24, 17, 26, 23, 18, 20, 19, 16, 27, 21, 22, 25, 29, 15, 28},
-            {17, 18, 20, 24, 15, 16, 28, 27, 25, 21, 22, 23, 26, 19, 29},
-            {29, 27, 26, 23, 20, 16, 28, 22, 19, 21, 25, 18, 17, 15, 24},
-            {21, 16, 29, 28, 23, 15, 17, 22, 18, 20, 25, 24, 19, 27, 26},
-            {19, 17, 15, 26, 27, 24, 16, 25, 29, 23, 22, 21, 20, 28, 18},
-            {25, 27, 15, 18, 24, 29, 20, 28, 26, 22, 16, 21, 23, 17, 19},
-            {20, 23, 22, 26, 18, 29, 24, 27, 21, 16, 15, 17, 28, 25, 19},
-            {25, 17, 21, 23, 16, 26, 24, 22, 20, 28, 29, 18, 15, 27, 19},
-            {27, 28, 20, 17, 18, 16, 26, 24, 25, 23, 29, 21, 19, 22, 15},
-            {24, 25, 23, 15, 19, 21, 29, 18, 28, 16, 26, 22, 20, 27, 17},
-            {24, 22, 27, 16, 17, 28, 20, 23, 19, 15, 21, 26, 25, 29, 18},
-            {21, 29, 26, 19, 24, 17, 27, 15, 23, 25, 28, 22, 18, 20, 16},
-            {22, 29, 19, 20, 27, 24, 16, 28, 26, 17, 18, 15, 23, 25, 21}
-        };
-        StableMatchingProblem2 problem = new StableMatchingProblem2(n, menPref, womenPref);
+        StableMatchingProblem3 problem = new StableMatchingProblem3(n, pref);
         Algorithm algorithm = new NSGAII(problem);
         algorithm.run(1);
         NondominatedPopulation solution = algorithm.getResult();
-        int i = 1;
-        for (Solution sol : solution) {
-            System.out.println("Solution " + i + ":");
-            int[] order = ((Permutation) sol.getVariable(0)).toArray();
-            boolean isInputWoman = order[0] >= n;
-            System.out.println("Order: " + Arrays.toString(order));
-            int[] partners = problem.GaleShapley(order);
-            System.out.printf("%s  %s%n", isInputWoman ? "Man" : "Woman", isInputWoman ? "Woman" : "Man");
-            for (int j = 0; j < n; j++) {
-                System.out.printf("  %s  -  %s%n", isInputWoman ? j : j + n, partners[j]);
-            }
-            System.out.printf("Satisfaction: %s", -sol.getObjective(0));
-            i++;
-        }
+        solution.display();
     }
 }

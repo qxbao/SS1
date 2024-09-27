@@ -2,9 +2,7 @@ package org.orca.stable_matching;
 
 import org.moeaframework.core.Problem;
 import org.moeaframework.core.Solution;
-import org.moeaframework.core.Variable;
 import org.moeaframework.core.variable.Permutation;
-import org.moeaframework.core.variable.Subset;
 
 import java.util.Arrays;
 
@@ -71,9 +69,8 @@ public class StableMatchingProblem2 implements Problem {
     public int[] GaleShapley(int[] input) {
         int[] partners = new int[n];
         boolean isWoman = input[0] >= n;
-        int[][] apref, bpref;
+        int[][] apref;
         apref = isWoman ? womenPreference : menPreference;
-        bpref = isWoman ? menPreference : womenPreference;
         int subtract = isWoman ? n : 0;
         int subtract1 = isWoman ? 0 : n;
         // All women and men are free at first
