@@ -1,6 +1,6 @@
 package org.orca.stable_matching;
 
-import org.moeaframework.algorithm.NSGAII;
+import org.moeaframework.algorithm.NSGAIII;
 import org.moeaframework.core.Algorithm;
 import org.moeaframework.core.NondominatedPopulation;
 import org.moeaframework.core.Solution;
@@ -46,7 +46,7 @@ public class Main {
                 {1, 6, 0, 14, 2, 8, 9, 10, 7, 11, 5, 3, 13, 12, 4},
         };
         StableMatchingProblem3 problem = new StableMatchingProblem3(prefs);
-        Algorithm algorithm = new NSGAII(problem);
+        Algorithm algorithm = new NSGAIII(problem);
         algorithm.run(10000);
         NondominatedPopulation solutions = algorithm.getResult();
         for (Solution solution: solutions) {
