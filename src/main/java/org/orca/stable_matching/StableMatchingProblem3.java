@@ -20,39 +20,37 @@ public class StableMatchingProblem3 implements Problem {
     public String getName() {
         return this.getClass().getSimpleName();
     }
-
     @Override
     public int getNumberOfVariables() {
         return 1;
     }
-
     @Override
     public int getNumberOfObjectives() {
         return 1;
     }
-
     @Override
     public int getNumberOfConstraints() {
         return 0;
     }
-
     @Override
     public void evaluate(Solution solution) {
         int[] order = ((Permutation) solution.getVariable(0)).toArray();
         List<Integer> partners = StableMatchingExtra(order);
-        int satisfactionSum = calculateSatisfaction(partners);
+        int satisfactionSum = partners.isEmpty() ? -1 : calculateSatisfaction(partners);
         solution.setObjective(0, -satisfactionSum);
     }
-
     public List<Integer> StableMatchingExtra(int[] order) {
         Queue<Integer> singleQueue = new LinkedList<>();
         for(int node : order) singleQueue.add(node);
         List<Integer> partners = new ArrayList<>();
         for (int i = 0; i < n; i++) partners.add(-1);
         Set<Integer> matched = new HashSet<>();
+        int loop = 0;
         while(!singleQueue.isEmpty()){
             int a = singleQueue.poll();
             if (matched.contains(a)) continue;
+            // Prevent infinite loop
+            if (loop > 2 * n) return new ArrayList<>();
             int[] aPreference = preferences[a];
             for (int b : aPreference) {
                 if (partners.get(a) == b && partners.get(b) == a) break;
@@ -75,6 +73,7 @@ public class StableMatchingProblem3 implements Problem {
                     }
                 }
             }
+            loop++;
         }
         return partners;
     }
@@ -105,7 +104,6 @@ public class StableMatchingProblem3 implements Problem {
         }
         throw new RuntimeException("This should not happen");
     }
-
     @Override
     public Solution newSolution() {
         Solution solution = new Solution(this.getNumberOfVariables(), this.getNumberOfObjectives());
@@ -114,7 +112,5 @@ public class StableMatchingProblem3 implements Problem {
     }
 
     @Override
-    public void close() {
-
-    }
+    public void close(){}
 }

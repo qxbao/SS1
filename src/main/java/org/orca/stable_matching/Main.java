@@ -51,12 +51,12 @@ public class Main {
         NondominatedPopulation solutions = algorithm.getResult();
         for (Solution solution: solutions) {
             System.out.println("SOLUTION");
-            System.out.println("   Pairs");
+            System.out.println("- Pairs:");
             List<Integer> pairs = problem.StableMatchingExtra(((Permutation) solution.getVariable(0)).toArray());
             Set<Integer> nodes = new HashSet<>();
             for (int i = 0; i < pairs.size(); i++) {
                 if (nodes.contains(i) || nodes.contains(pairs.get(i))) continue;
-                System.out.printf("[ %s - %s ]%n", i, pairs.get(i));
+                System.out.printf("  + [%2d - %1d]%n", i, pairs.get(i));
                 nodes.add(i);
                 nodes.add(pairs.get(i));
             }
