@@ -3,7 +3,6 @@ package org.orca.stable_matching;
 import org.moeaframework.core.Problem;
 import org.moeaframework.core.Solution;
 import org.moeaframework.core.variable.Permutation;
-import org.moeaframework.problem.misc.Lis;
 
 import java.util.*;
 
