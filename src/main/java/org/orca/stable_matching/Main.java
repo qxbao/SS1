@@ -12,8 +12,8 @@ import java.util.Set;
 
 public class Main {
     public static void main(String[] args) {
-        int n = 30;
-        int[][] pref = new int[][]{
+        // n = 30
+        int[][] prefs = new int[][]{
                 {17, 20, 29, 28, 21, 19, 26, 24, 16, 22, 27, 15, 18, 25, 23},
                 {28, 19, 17, 26, 16, 25, 20, 23, 22, 18, 24, 15, 27, 21, 29},
                 {24, 17, 26, 23, 18, 20, 19, 16, 27, 21, 22, 25, 29, 15, 28},
@@ -45,14 +45,14 @@ public class Main {
                 {7, 9, 8, 5, 14, 2, 0, 13, 3, 6, 1, 12, 4, 10, 11},
                 {1, 6, 0, 14, 2, 8, 9, 10, 7, 11, 5, 3, 13, 12, 4},
         };
-        StableMatchingProblem3 problem = new StableMatchingProblem3(n, pref);
+        StableMatchingProblem3 problem = new StableMatchingProblem3(prefs);
         Algorithm algorithm = new NSGAII(problem);
-        algorithm.run(100);
+        algorithm.run(10000);
         NondominatedPopulation solutions = algorithm.getResult();
         for (Solution solution: solutions) {
             System.out.println("SOLUTION");
             System.out.println("   Pairs");
-            List<Integer> pairs = problem.GaleShapley(((Permutation) solution.getVariable(0)).toArray());
+            List<Integer> pairs = problem.StableMatchingExtra(((Permutation) solution.getVariable(0)).toArray());
             Set<Integer> nodes = new HashSet<>();
             for (int i = 0; i < pairs.size(); i++) {
                 if (nodes.contains(i) || nodes.contains(pairs.get(i))) continue;
