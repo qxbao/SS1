@@ -4,107 +4,109 @@ import org.moeaframework.core.Problem;
 import org.moeaframework.core.Solution;
 import org.moeaframework.core.variable.Permutation;
 
+import java.util.*;
+
 public class StableMatchingProblem implements Problem {
-    // Number of pairs
     private final int n;
-    // Men & women preferences
-    private final int[][] menPreference, womenPreference;
-
-    // Getters
-    public int getN() {
-        return n;
-    }
-    public int[][] getMenPreference() {
-        return menPreference;
-    }
-    public int[][] getWomenPreference() {
-        return womenPreference;
-    }
-
-    public StableMatchingProblem(int n, int[][] menPref, int[][] womenPref) {
+    private final int[][] preferences;
+    public StableMatchingProblem(int[][] prefs) {
         super();
-        this.n = n;
-        menPreference = menPref;
-        womenPreference = womenPref;
+        this.preferences = prefs;
+        this.n = prefs.length;
     }
     @Override
     public String getName() {
         return this.getClass().getSimpleName();
     }
-
     @Override
     public int getNumberOfVariables() {
-        /* 1 variable - an array with size n, stand for a list of woman who match with man-i (i: their index)
-        *  Example: [1, 2, 0, 3]
-        *  Means: (Man 0 - Woman 1), (Man 1 - Woman 2), (Man 2 - Woman 0), (Man 3, Woman 3)
-        * */
         return 1;
     }
-
     @Override
     public int getNumberOfObjectives() {
-        // 1 objective is to minimize the number of unstable pair to zero.
         return 1;
     }
-
     @Override
     public int getNumberOfConstraints() {
         return 0;
     }
-
     @Override
     public void evaluate(Solution solution) {
-        // Format the solution
-        int[] cleanSolution = ((Permutation) solution.getVariable(0)).toArray();
-        // Calculate instability
-        int instability = calculateInstability(cleanSolution);
-        // Set objective (to minimize instability)
-        solution.setObjective(0, instability);
+        int[] order = ((Permutation) solution.getVariable(0)).toArray();
+        Matches matches = StableMatchingExtra(order);
+        int satisfactionSum = calculateSatisfaction(matches);
+        solution.setObjective(0, -satisfactionSum);
     }
-    public int getSatisfaction(int m, int w) {
-        return (n - rankOf(w, menPreference[m])) + (n - rankOf(m, womenPreference[w]));
-    }
-    private int calculateInstability(int[] women) {
-        int instability = 0;
-        // For each pair, compare with other pairs to see if any of them would cheat
-        for (int i = 0; i < n; i++) {
-            int man1 = i, woman1 = women[i];
-            for (int j = i; j < n; j++) {
-                if (j == i) continue;
-                int man2 = j, woman2 = women[j];
-                if (isUnfaithful(man1, woman1, man2, woman2)) {
-                    instability++;
+    public Matches StableMatchingExtra(int[] order) {
+        Queue<Integer> singleQueue = new LinkedList<>();
+        for(int node : order) singleQueue.add(node);
+        Matches matches = new Matches(n);
+        int loop = 0;
+        while(!singleQueue.isEmpty()){
+            int a = singleQueue.poll();
+            if (matches.isLinked(a)) continue;
+            // Prevent infinite loop
+            if (loop > 2 * n) return new Matches(0);
+            int[] aPreference = preferences[a];
+            int prefLen = aPreference.length;
+            for (int i = 0; i < prefLen; i++) {
+                int b = aPreference[i];
+                if (matches.isLinkedWith(a, b)) break;
+                if (!matches.isLinked(b)) {
+                    matches.link(a, b);
                     break;
+                } else {
+                    int bPartner = matches.getPartner(b);
+                    if (bLikeAMore(a, b, bPartner)) {
+                        singleQueue.add(bPartner);
+                        matches.relinkWith(b, bPartner, a);
+                        break;
+                    } else if (i == prefLen - 1) {
+                        matches.addLeftover(a);
+                    }
                 }
             }
+            loop++;
         }
-        return instability;
+        return matches;
     }
-    private boolean isUnfaithful(int m1, int w1, int m2, int w2) {
-        // Would m1 have an affair with w2?
-        boolean is1stPairUnfaithful = rankOf(w2, menPreference[m1]) < rankOf(w1, menPreference[m1])
-                && rankOf(m1, womenPreference[w2]) < rankOf(m2, womenPreference[w2]);
-        // Would w1 have an affair with m2?
-        boolean is2ndPairUnfaithful = rankOf(w1, menPreference[m2]) < rankOf(w2, menPreference[m2])
-                && rankOf(m2, womenPreference[w1]) < rankOf(m1, womenPreference[w1]);
-        return is1stPairUnfaithful || is2ndPairUnfaithful;
-    }
-    // Just a linear-search
-    private int rankOf(int entity, int[] pref) {
-        for (int i = 0; i < pref.length; i++) {
-            if (pref[i] == entity) return i;
+    public int calculateSatisfaction(Matches matches) {
+        if (matches.isEmpty()) return -1;
+        List<Integer> list = matches.getList();
+        int totalSatisfaction = 0;
+        Set<Integer> nodes = new HashSet<>();
+        for (int a = 0; a < n; a++) {
+            int b = list.get(a);
+            if (b == -1 ) continue;
+            if (nodes.contains(a) || nodes.contains(b)) continue;
+            nodes.add(a); nodes.add(b);
+            int rankA = findRank(a, b);
+            int rankB = findRank(b, a);
+            totalSatisfaction += preferences[b].length - rankA;
+            totalSatisfaction += preferences[a].length - rankB;
         }
-        throw new RuntimeException("Inputs (pref) are not valid.");
+        return totalSatisfaction;
+    }
+    public boolean bLikeAMore(int a, int b, int c) {
+        for (int individual : preferences[b]) {
+            if (individual == a) return true;
+            if (individual == c) return false;
+        }
+        throw new RuntimeException("The input (preference) have some problem: " + Arrays.toString(preferences[b]));
+    }
+    public int findRank(int target, int from) {
+        for (int i = 0; i < preferences[from].length; i++) {
+            if (preferences[from][i] == target) return i;
+        }
+        throw new RuntimeException("This should not happen");
     }
     @Override
     public Solution newSolution() {
-        Solution solution = new Solution(this.getNumberOfVariables(), this.getNumberOfObjectives(), this.getNumberOfConstraints());
+        Solution solution = new Solution(this.getNumberOfVariables(), this.getNumberOfObjectives());
         solution.setVariable(0, new Permutation(n));
         return solution;
     }
 
     @Override
-    public void close() {
-
-    }
+    public void close(){}
 }
